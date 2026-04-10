@@ -68,10 +68,6 @@ app.post('/inscription', (req, res) => {
   //Hachage mot de passe 
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
-      if (req.body.classe != 'ciel1' && req.body.classe != 'ciel2') {
-        res.json({ message: 'err classe inconnu' });
-        return;
-      }
       //Insertion dans la base
       connection.query(
         'INSERT INTO users(username,password) VALUES(?,?)',

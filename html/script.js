@@ -7,6 +7,9 @@
 const password = document.getElementById('passwordInput');
 const username = document.getElementById('usernameInput');
 
+const btnInscription = document.getElementById('registerButton');
+const connexion = document.getElementById('loginButton');
+
 btnInscription.addEventListener('click', () => {
 
     fetch('/inscription', {
@@ -16,7 +19,7 @@ btnInscription.addEventListener('click', () => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            nom: username.value,
+            username: username.value,
             password: password.value,
         })
     })

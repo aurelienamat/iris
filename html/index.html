@@ -1,12 +1,27 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iris</title>
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css">
 </head>
 <body>
-    <h1>Test</h1>
+    <div class="login-page">
+        <div class="form">
+            <form class="login-form">
+            <div id="usernameDiv">
+              <input id="usernameInput" type="text" autocomplete="off" placeholder="Username"/>
+              <p></p>
+            </div>
+            
+            <input id="passwordInput" type="password" autocomplete="off" placeholder="Password"/>
+            <!-- <button id="registerButton">Registerr</button> -->
+            <input type="button" value="Register" id="registerButton">
+            <input type="button" value="Login" id="loginButton">
+          </form>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
