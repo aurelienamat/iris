@@ -94,7 +94,7 @@ app.post('/connexion', (req, res) => {
 
   //Récupération password dans la base pour la comparaison
   connection.query(
-    'SELECT password,id FROM users WHERE username = ?',
+    'SELECT password,id,username FROM users WHERE username = ?',
     [req.body.username], (err, results) => {
       if (err) {
         console.log("Erreur récupération username " + err);
@@ -115,7 +115,7 @@ app.post('/connexion', (req, res) => {
           return;
         }
         if (results) {
-          console.log('Connexion réussi id : ' + resultat.id);
+          console.log('Connexion réussi id : ' + resultat.id + ", username : " + resultat.username);
 
           //Creation du token
           const token = jwt.sign(
