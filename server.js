@@ -37,16 +37,28 @@ connection.connect((err) => {
 
 //WEBSOCKET
 ws.on('connection', (client, request) => {
-  console.log('Nouveau client connecté');
   verifTokenWS(client, request);
+  console.log('Nouveau client connecté : ' + client.username);
   client.on('message', (data) => {
     const msg = JSON.parse(data);
     console.log('Message reçu :', msg);
 
-    // Rediffusion à tous les clients connectés
-    ws.clients.forEach((c) => {
-      c.send(JSON.stringify(msg));
-    });
+    connection.query(
+      'INSERT INTO messages(message,idUsers) VALUES(?,?)',
+      [msg.message, client.id], (err, results) => {
+        if (err) {
+          console.log('Erreur insertion ' + err);
+        }
+        if (results) {
+          // Rediffusion à tous les clients connectés
+          ws.clients.forEach((c) => {
+            c.send(JSON.stringify(msg));
+          });
+        }
+      }
+    )
+
+
   });
 
   client.on('close', () => {
@@ -206,6 +218,7 @@ function verifTokenWS(client, request) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     client.username = decoded.username;
+    client.id = decoded.id;
     console.log('Token Valide');
   } catch (err) {
     client.close();
