@@ -9,6 +9,15 @@ const username = document.getElementById('usernameInput');
 
 const btnInscription = document.getElementById('registerButton');
 const connexion = document.getElementById('loginButton');
+const sendButton = document.getElementById('sendButton');
+
+//WEBSOCKET
+const socket = new WebSocket('ws://192.168.1.115:3003');
+
+sendButton.addEventListener('click', () => {
+    console.log('Send');
+    socket.send(JSON.stringify({ message: username.value }))
+})
 
 btnInscription.addEventListener('click', () => {
 
@@ -57,7 +66,7 @@ connexion.addEventListener('click', () => {
                 console.log(data.message);
             } else { // Connexion réussie, on sauvegarde la classe dans le localStorage
                 //console.log('Connexion réussie, classe : ' + data.classe);
-               
+
                 //Remplissage du local storage
                 localStorage.setItem('idUsers', data.idUsers);
                 localStorage.setItem('username', data.username);

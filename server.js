@@ -1,8 +1,13 @@
 //.env
 require('dotenv').config();
 
+const http = require('http');
 const express = require('express');
 const app = express();
+const server = http.createServer(app);
+const { WebSocketServer } = require('ws');
+const ws = new WebSocketServer({ server });
+
 const bcrypt = require('bcrypt'); //POUR HASH
 const mysql = require('mysql2'); //Mysql
 //Token
@@ -29,9 +34,29 @@ connection.connect((err) => {
   console.log('Connecté à la base de données MySQL.');
 });
 
+//WEBSOCKET
+ws.on('connection', (client) => {
+  console.log('Nouveau client connecté');
+
+  client.on('message', (data) => {
+    const msg = JSON.parse(data);
+    console.log('Message reçu :', msg);
+
+    // Rediffusion à tous les clients connectés
+    ws.clients.forEach((c) => {
+      c.send(JSON.stringify(msg));
+    });
+  });
+
+  client.on('close', () => {
+    console.log('Client déconnecté');
+  });
+});
+
+
 
 //Lire sur le port 3003
-app.listen(3003, () => {
+server.listen(3003, () => {
   console.log('Server is running on :3003');
 })
 
@@ -60,10 +85,6 @@ app.post('/inscription', (req, res) => {
     res.json({ message: 'Mot de passe invalide', error: "Carractère spécial" });
     return;
   }
-  // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)) {
-  //   res.json({ message: 'Email invalide' });
-  //   return;
-  // }
 
   //Hachage mot de passe 
   bcrypt.hash(req.body.password, 10)
