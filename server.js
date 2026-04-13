@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 const http = require('http');
+const cookie = require('cookie');
 const express = require('express');
 const app = express();
 const server = http.createServer(app);
@@ -35,9 +36,9 @@ connection.connect((err) => {
 });
 
 //WEBSOCKET
-ws.on('connection', (client) => {
+ws.on('connection', (client, request) => {
   console.log('Nouveau client connecté');
-
+  verifTokenWS(client, request);
   client.on('message', (data) => {
     const msg = JSON.parse(data);
     console.log('Message reçu :', msg);
@@ -195,4 +196,18 @@ function verifToken(req, res, next) {
     return res.status(401).json({ message: 'Token invalide ou expiré' });
   }
 
+}
+
+// Vérification WebSocket
+function verifTokenWS(client, request) {
+  const cookies = cookie.parse(request.headers.cookie || '');
+  const token = cookies.authtoken;
+  if (!token) { client.close(); return; }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    client.username = decoded.username;
+    console.log('Token Valide');
+  } catch (err) {
+    client.close();
+  }
 }
