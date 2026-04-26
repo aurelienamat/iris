@@ -1,28 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="login.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="login-page">
-        <div class="form">
-            <form class="login-form">
-            <div id="usernameDiv">
-              <input id="usernameInput" type="text" autocomplete="off" placeholder="Username"/>
-              <p></p>
-            </div>
-            
-            <input id="passwordInput" type="password" autocomplete="off" placeholder="Password"/>
-            <!-- <button id="registerButton">Registerr</button> -->
-            <input type="button" value="Register" id="registerButton">
-            <input type="button" value="Login" id="loginButton">
-            <input type="button" value="Envoyer" id="sendButton">
-          </form>
+  <div id="auth-screen" class="screen active">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <span class="brand-name">Projet Final</span>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="tab-btn active" data-tab="login">Connexion</button>
+        <button class="tab-btn" data-tab="register">Inscription</button>
+      </div>
+
+      <div id="tab-login" class="tab-content active">
+        <div class="field">
+          <label>Identifiant</label>
+          <input type="text" id="login-username" placeholder="Username" autocomplete="off"/>
         </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          <input type="password" id="login-password" placeholder="Password" autocomplete="off"/>
+        </div>
+        <p id="login-error" class="error-msg"></p>
+        <button id="login-btn" class="btn-primary">Se connecter</button>
+      </div>
+
+      <div id="tab-register" class="tab-content">
+        <div class="field">
+          <label>Identifiant</label>
+          <input type="text" id="reg-username" placeholder="Username" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          <input type="password" id="reg-password" placeholder="Password" autocomplete="off"/>
+          <div class="pwd-rules">
+            <span id="r-len">8 caractères</span>
+            <span id="r-maj">Majuscule</span>
+            <span id="r-min">Minuscule</span>
+            <span id="r-num">Chiffre</span>
+            <span id="r-spe">Spécial</span>
+          </div>
+        </div>
+        <p id="reg-error" class="error-msg"></p>
+        <p id="reg-success" class="success-msg"></p>
+        <button id="reg-btn" class="btn-primary">S'inscrire</button>
+      </div>
     </div>
-    <script src="script.js"></script>
+  </div>
+
+  <div id="chat-screen" class="screen">
+    <header class="chat-header">
+      <div class="header-left">
+        <div class="header-brand">Projet Final</div>
+        <div class="header-status">
+          <span class="dot-live"></span>
+        </div>
+      </div>
+      <div class="header-right">
+        <span id="header-user"></span>
+        <button id="logout-btn" title="Déconnexion">Déconnexion</button>
+      </div>
+    </header>
+
+    <div id="messages" class="messages-area">
+      <div class="messages-inner" id="messages-inner"></div>
+    </div>
+
+    <footer class="chat-footer">
+      <div class="input-row">
+        <textarea id="msg-input" placeholder="..." rows="1"></textarea>
+        <button id="send-btn">↑</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="index.js"></script>
 </body>
 </html>
