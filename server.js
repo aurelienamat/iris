@@ -132,6 +132,7 @@ app.post('/connexion', (req, res) => {
     [req.body.username], (err, results) => {
       if (err) {
         console.log("Erreur récupération username " + err);
+        res.json({message : 'err'});
         return;
       }
       if (results.length == 0) {
@@ -224,3 +225,21 @@ function verifTokenWS(client, request) {
     client.close();
   }
 }
+
+app.get('/oldMessages', verifToken,(req,res) => {
+  connection.query(
+    'SELECT DISTINCT messages.message,users.username FROM messages,users WHERE messages.idUsers = users.id ORDER BY messages.id DESC LIMIT 20',
+  (err,results) => {
+    if(err){
+      console.log('Erreur récupération des messages : ' + err);
+      res.json({message : 'erreur recuperation dernier message'});
+      return;
+    }
+    if(results){
+      console.log(results);
+      res.json(results);
+      return;
+    }
+    res.json({message : 'wtf'});
+  })
+})
