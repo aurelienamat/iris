@@ -18,7 +18,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 	});
 });
 
-$('reg-password').addEventListener('input', function() {
+$('reg-password').addEventListener('input', function () {
 	const v = this.value;
 	$('r-len').classList.toggle('ok', v.length >= 8);
 	$('r-maj').classList.toggle('ok', /[A-Z]/.test(v));
@@ -48,14 +48,36 @@ $('reg-btn').addEventListener('click', async () => {
 
 	const data = await res.json();
 	if (data.message === 'Inscription réussie !') {
+
 		$('reg-success').textContent = data.message;
 		$('reg-username').value = '';
 		$('reg-password').value = '';
 		document.querySelectorAll('.pwd-rules span').forEach(s => s.classList.remove('ok'));
 		setTimeout(() => document.querySelector('[data-tab="login"]').click(), 1200);
+
 	} else {
 		$('reg-error').textContent = data.message;
 	}
+
+
+	//Connexion apres inscription
+	
+	const res1 = await fetch('/connexion', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ username, password })
+	}).catch(() => null);
+
+	if (!res1) { $('login-error').textContent = 'Erreur réseau'; return; }
+
+	const data1 = await res1.json();
+	if (data1.username) {
+		currentUser = data1.username;
+		enterChat();
+	} else {
+		$('login-error').textContent = data1.message;
+	}
+
 });
 
 $('login-btn').addEventListener('click', async () => {
@@ -192,13 +214,13 @@ $('msg-input').addEventListener('keydown', e => {
 	}
 });
 
-$('msg-input').addEventListener('input', function() {
+$('msg-input').addEventListener('input', function () {
 	this.style.height = 'auto';
 	this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 });
 
 $('logout-btn').addEventListener('click', async () => {
-        await fetch('/deconnexion', { method: 'POST' }).catch(() => {});
+	await fetch('/deconnexion', { method: 'POST' }).catch(() => { });
 	socket?.close();
 	socket = null;
 	currentUser = null;

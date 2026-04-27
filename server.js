@@ -52,7 +52,7 @@ ws.on('connection', (client, request) => {
         if (results) {
           // Rediffusion à tous les clients connectés
           ws.clients.forEach((c) => {
-            c.send(JSON.stringify(msg));
+            c.send(JSON.stringify({message : msg.message, username : client.username}));
           });
         }
       }
