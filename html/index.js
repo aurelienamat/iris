@@ -1,8 +1,5 @@
 let socket = null;
 let currentUser = null;
-let lastSender = null;
-
-const $ = id => document.getElementById(id);
 
 checkSession();
 
@@ -11,30 +8,26 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 		document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 		document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
 		btn.classList.add('active');
-		$('tab-' + btn.dataset.tab).classList.add('active');
-		$('login-error').textContent = '';
-		$('reg-error').textContent = '';
-		$('reg-success').textContent = '';
+		document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
 	});
 });
 
-$('reg-password').addEventListener('input', function () {
-	const v = this.value;
-	$('r-len').classList.toggle('ok', v.length >= 8);
-	$('r-maj').classList.toggle('ok', /[A-Z]/.test(v));
-	$('r-min').classList.toggle('ok', /[a-z]/.test(v));
-	$('r-num').classList.toggle('ok', /[0-9]/.test(v));
-	$('r-spe').classList.toggle('ok', /[!@#$%^&*(),.?":{}|<>]/.test(v));
+document.getElementById('reg-password').addEventListener('input', function () {
+	document.getElementById('r-len').classList.toggle('ok', this.value.length >= 8);
+	document.getElementById('r-maj').classList.toggle('ok', /[A-Z]/.test(this.value));
+	document.getElementById('r-min').classList.toggle('ok', /[a-z]/.test(this.value));
+	document.getElementById('r-num').classList.toggle('ok', /[0-9]/.test(this.value));
+	document.getElementById('r-spe').classList.toggle('ok', /[!@#$%^&*(),.?":{}|<>]/.test(this.value));
 });
 
-$('reg-btn').addEventListener('click', async () => {
-	const username = $('reg-username').value.trim();
-	const password = $('reg-password').value;
-	$('reg-error').textContent = '';
-	$('reg-success').textContent = '';
+document.getElementById('reg-btn').addEventListener('click', async () => {
+	const username = document.getElementById('reg-username').value.trim();
+	const password = document.getElementById('reg-password').value;
+	const errorEl = document.getElementById('reg-error');
+	errorEl.textContent = '';
 
-	if (!username) {
-		$('reg-error').textContent = 'Identifiant requis';
+	if (!username || !password) {
+		errorEl.textContent = 'Champs requis';
 		return;
 	}
 
@@ -44,49 +37,25 @@ $('reg-btn').addEventListener('click', async () => {
 		body: JSON.stringify({ username, password })
 	}).catch(() => null);
 
-	if (!res) { $('reg-error').textContent = 'Erreur réseau'; return; }
+	if (!res) { errorEl.textContent = 'Erreur réseau'; return; }
 
 	const data = await res.json();
 	if (data.message === 'Inscription reussie !') {
-
-		//Connexion apres inscription
-
-		const res1 = await fetch('/connexion', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ username, password })
-		}).catch(() => null);
-
-		if (!res1) { $('login-error').textContent = 'Erreur réseau'; return; }
-
-		const data1 = await res1.json();
-		if (data1.username) {
-			currentUser = data1.username;
-			enterChat();
-		} else {
-			$('login-error').textContent = data1.message;
-		}
-
-		$('reg-success').textContent = data.message;
-		$('reg-username').value = '';
-		$('reg-password').value = '';
-		document.querySelectorAll('.pwd-rules span').forEach(s => s.classList.remove('ok'));
-		setTimeout(() => document.querySelector('[data-tab="login"]').click(), 1200);
-
+		currentUser = username;
+		enterChat();
 	} else {
-		$('reg-error').textContent = data.message;
+		errorEl.textContent = data.message;
 	}
-
-
 });
 
-$('login-btn').addEventListener('click', async () => {
-	const username = $('login-username').value.trim();
-	const password = $('login-password').value;
-	$('login-error').textContent = '';
+document.getElementById('login-btn').addEventListener('click', async () => {
+	const username = document.getElementById('login-username').value.trim();
+	const password = document.getElementById('login-password').value;
+	const errorEl = document.getElementById('login-error');
+	errorEl.textContent = '';
 
 	if (!username || !password) {
-		$('login-error').textContent = 'Champs requis';
+		errorEl.textContent = 'Champs requis';
 		return;
 	}
 
@@ -96,19 +65,20 @@ $('login-btn').addEventListener('click', async () => {
 		body: JSON.stringify({ username, password })
 	}).catch(() => null);
 
-	if (!res) { $('login-error').textContent = 'Erreur réseau'; return; }
+	if (!res) { errorEl.textContent = 'Erreur réseau'; return; }
 
 	const data = await res.json();
 	if (data.username) {
 		currentUser = data.username;
 		enterChat();
 	} else {
-		$('login-error').textContent = data.message;
+		errorEl.textContent = data.message;
 	}
 });
 
-$('login-password').addEventListener('keydown', e => {
-	if (e.key === 'Enter') $('login-btn').click();
+
+document.getElementById('login-password').addEventListener('keydown', e => {
+	if (e.key === 'Enter') document.getElementById('login-btn').click();
 });
 
 async function checkSession() {
@@ -124,25 +94,40 @@ async function checkSession() {
 	showScreen('auth');
 }
 
+async function loadOldMessages() {
+	const res = await fetch('/oldMessages').catch(() => null);
+	if (!res || !res.ok) return;
+
+	const messages = await res.json();
+
+	messages.reverse().forEach(msg => {
+		appendMessage(msg.content, msg.username, msg.username === currentUser);
+	});
+}
+
 function enterChat() {
-	$('header-user').textContent = currentUser;
+	document.getElementById('header-user').textContent = currentUser;
 	showScreen('chat');
 	connectWS();
-	$('msg-input').focus();
+	loadOldMessages();
+	document.getElementById('msg-input').focus();
 }
 
 function showScreen(name) {
 	document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-	$(name + '-screen').classList.add('active');
+	document.getElementById(name + '-screen').classList.add('active');
 }
 
 function connectWS() {
-	const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-	socket = new WebSocket(`${proto}://${location.host}`);
+	if (socket) {
+		socket.onclose = null; 
+		socket.close();
+		socket = null;
+	}
 
-	socket.addEventListener('open', () => {
-		$('status-text').textContent = 'En ligne';
-	});
+	socket = new WebSocket('ws://localhost:3003');
+
+	socket.addEventListener('open', () => {});
 
 	socket.addEventListener('message', e => {
 		const data = JSON.parse(e.data);
@@ -150,7 +135,6 @@ function connectWS() {
 	});
 
 	socket.addEventListener('close', () => {
-		$('status-text').textContent = 'Reconnexion...';
 		setTimeout(connectWS, 2500);
 	});
 
@@ -158,7 +142,7 @@ function connectWS() {
 }
 
 function appendMessage(text, sender, isOwn) {
-	const inner = $('messages-inner');
+	const inner = document.getElementById('messages-inner');
 	const lastGroup = inner.lastElementChild;
 
 	let group;
@@ -173,7 +157,6 @@ function appendMessage(text, sender, isOwn) {
 		group.appendChild(senderEl);
 
 		inner.appendChild(group);
-		lastSender = sender;
 	} else {
 		group = lastGroup;
 	}
@@ -183,48 +166,42 @@ function appendMessage(text, sender, isOwn) {
 	bubble.textContent = text;
 	group.appendChild(bubble);
 
-	let timeEl = group.querySelector('.msg-time');
-	if (!timeEl) {
-		timeEl = document.createElement('div');
-		timeEl.className = 'msg-time';
-		group.appendChild(timeEl);
-	}
-	timeEl.textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+	const oldTime = group.querySelector('.msg-time');
+	if (oldTime) oldTime.remove();
 
-	$('messages').scrollTo({ top: $('messages').scrollHeight, behavior: 'smooth' });
+	const timeEl = document.createElement('div');
+	timeEl.className = 'msg-time';
+	timeEl.textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+	group.appendChild(timeEl);
+
+	const messages = document.getElementById('messages');
+	messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
 }
 
 function sendMessage() {
-	const input = $('msg-input');
+	const input = document.getElementById('msg-input');
 	const text = input.value.trim();
 	if (!text || !socket || socket.readyState !== WebSocket.OPEN) return;
 
 	socket.send(JSON.stringify({ message: text }));
 	input.value = '';
-	input.style.height = 'auto';
 	input.focus();
 }
 
-$('send-btn').addEventListener('click', sendMessage);
+document.getElementById('send-btn').addEventListener('click', sendMessage);
 
-$('msg-input').addEventListener('keydown', e => {
+document.getElementById('msg-input').addEventListener('keydown', e => {
 	if (e.key === 'Enter' && !e.shiftKey) {
 		e.preventDefault();
 		sendMessage();
 	}
 });
 
-$('msg-input').addEventListener('input', function () {
-	this.style.height = 'auto';
-	this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-});
-
-$('logout-btn').addEventListener('click', async () => {
+document.getElementById('logout-btn').addEventListener('click', async () => {
 	await fetch('/deconnexion', { method: 'POST' }).catch(() => { });
-	socket?.close();
+	if (socket) socket.close();
 	socket = null;
 	currentUser = null;
-	lastSender = null;
-	$('messages-inner').innerHTML = '';
+	document.getElementById('messages-inner').innerHTML = '';
 	showScreen('auth');
 });
