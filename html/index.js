@@ -47,7 +47,25 @@ $('reg-btn').addEventListener('click', async () => {
 	if (!res) { $('reg-error').textContent = 'Erreur réseau'; return; }
 
 	const data = await res.json();
-	if (data.message === 'Inscription réussie !') {
+	if (data.message === 'Inscription reussie !') {
+
+		//Connexion apres inscription
+
+		const res1 = await fetch('/connexion', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ username, password })
+		}).catch(() => null);
+
+		if (!res1) { $('login-error').textContent = 'Erreur réseau'; return; }
+
+		const data1 = await res1.json();
+		if (data1.username) {
+			currentUser = data1.username;
+			enterChat();
+		} else {
+			$('login-error').textContent = data1.message;
+		}
 
 		$('reg-success').textContent = data.message;
 		$('reg-username').value = '';
@@ -59,24 +77,6 @@ $('reg-btn').addEventListener('click', async () => {
 		$('reg-error').textContent = data.message;
 	}
 
-
-	//Connexion apres inscription
-	
-	const res1 = await fetch('/connexion', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ username, password })
-	}).catch(() => null);
-
-	if (!res1) { $('login-error').textContent = 'Erreur réseau'; return; }
-
-	const data1 = await res1.json();
-	if (data1.username) {
-		currentUser = data1.username;
-		enterChat();
-	} else {
-		$('login-error').textContent = data1.message;
-	}
 
 });
 
