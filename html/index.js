@@ -125,7 +125,7 @@ function connectWS() {
 		socket = null;
 	}
 
-	socket = new WebSocket('ws://localhost:3003');
+	socket = new WebSocket('ws://172.29.19.8:3003');
 
 	socket.addEventListener('open', () => {});
 
