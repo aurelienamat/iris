@@ -101,7 +101,7 @@ async function loadOldMessages() {
 	const messages = await res.json();
 
 	messages.reverse().forEach(msg => {
-		appendMessage(msg.content, msg.username, msg.username === currentUser);
+		appendMessage(msg.message, msg.username, msg.username === currentUser);
 	});
 }
 
