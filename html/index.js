@@ -42,7 +42,21 @@ document.getElementById('reg-btn').addEventListener('click', async () => {
 	const data = await res.json();
 	if (data.message === 'Inscription reussie !') {
 		currentUser = username;
-		enterChat();
+		const res = await fetch('/connexion', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ username, password })
+		}).catch(() => null);
+
+		if (!res) { errorEl.textContent = 'Erreur réseau'; return; }
+
+		const data = await res.json();
+		if (data.username) {
+			currentUser = data.username;
+			enterChat();
+		} else {
+			errorEl.textContent = data.message;
+		}
 	} else {
 		errorEl.textContent = data.message;
 	}
@@ -120,14 +134,14 @@ function showScreen(name) {
 
 function connectWS() {
 	if (socket) {
-		socket.onclose = null; 
+		socket.onclose = null;
 		socket.close();
 		socket = null;
 	}
 
 	socket = new WebSocket('ws://172.29.19.8:3003');
 
-	socket.addEventListener('open', () => {});
+	socket.addEventListener('open', () => { });
 
 	socket.addEventListener('message', e => {
 		const data = JSON.parse(e.data);
